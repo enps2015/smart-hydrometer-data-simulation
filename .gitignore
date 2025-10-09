@@ -1,0 +1,17 @@
+# Arquivos temporários e dados brutos não versionados
+__pycache__/
+*.pyc
+*.pyo
+
+# Bases volumosas mantidas apenas localmente
+datasets_hidrometros_v2/dataset_hidrometros_*.csv
+datasets_hidrometros_v2/separados_mensais/
+datasets_hidrometros_v2/separados/
+datasets_hidrometros_v2/separados_mensais_csv_gz/**/*.csv
+
+# Notebooks e artefatos auxiliares
+datasets_hidrometros_v2/*.ipynb
+
+# Arquivos temporários de SO/IDE
+.DS_Store
+Thumbs.db

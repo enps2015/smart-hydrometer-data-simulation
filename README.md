@@ -1,127 +1,97 @@
-# Simulação de Dados de Hidrômetros Inteligentes
+# Smart Hydrometer Data Simulation
 
-Este projeto tem como objetivo simular dados de hidrômetros inteligentes para fins de estudo e análise, com foco em IoT e Cidades Inteligentes. Os dados gerados buscam replicar cenários realistas, incluindo padrões de consumo variados, falhas e anomalias.
+Simulações sintéticas de telemetria hídrica para estudos de IoT, analytics e cidades inteligentes. O repositório agora mantém duas gerações de datasets – a versão original e uma nova coleção com granularidade ampliada e recortes mensais compactados – além dos scripts que geram, particionam e validam os dados.
 
-## Conteúdo do Dataset Simulado
+## 📦 Estrutura de Dados
 
-O dataset simulado contém leituras horárias de 500 hidrômetros inteligentes, abrangendo um período de 12 meses (Janeiro a Dezembro de 2024). Os dados são separados por mês e por cidade, resultando em múltiplos arquivos para facilitar o gerenciamento e a análise.
+- `datasets_versao_1/simulacao_hidrometros_por_mes_cidade/`
+  - Base histórica do repositório (2024, 500 hidrômetros, leituras horárias).
+  - Arquivos `.csv` e `.parquet` já particionados por cidade/mês.
+  - Indicada para estudos rápidos e notebooks de prototipagem.
+- `datasets_hidrometros_v2/`
+  - `dataset_hidrometros_*.csv` *(gigantes – mantidos fora do Git via `.gitignore`)*: geração contínua em intervalos de 15 minutos, com perfis de consumo realistas e eventos culturais.
+  - `separados_mensais/` *(uso local)*: recorte puro por cidade/mês, preservando o CSV integral.
+  - `separados_mensais_csv_gz/` *(versão distribuída)*: os mesmos recortes em `.csv.gz`, prontos para download no GitHub (todos os arquivos < 100 MB).
+  - Scripts utilitários:
+    - `gerador_de_dataset_de_hidrômetros_inteligentes_(final_otimizado).py`: geração em streaming.
+    - `separar_por_mes.py`: particionamento sem carregar os arquivos completos em memória.
+    - `comprimir_mensais.py`: criação das versões compactadas `.csv.gz`.
+    - `test_partitioning.py`: validação de integridade (contagem + hash SHA-256 por mês).
 
-### Variáveis Incluídas:
+## 🚀 Novidades da Versão 2
 
-*   `id_hidrometro`: Identificador único para cada hidrômetro.
-*   `timestamp`: Data e hora da leitura (formato horário).
-*   `consumo_m3`: Volume de água consumido em metros cúbicos desde a última leitura.
-*   `vazao_instantanea_m3h`: Vazão instantânea medida no momento da leitura.
-*   `status_hidrometro`: Estado operacional do medidor (ex: OK, BATERIA_FRACA, FALHA_COMUNICACAO, LEITURA_INCORRETA, SUSPEITA_FRAUDE).
-*   `alerta_vazamento`: Booleano indicando detecção de vazamento (True/False).
-*   `alerta_fraude`: Booleano indicando detecção de fraude (True/False).
-*   `temperatura_local_c`: Temperatura no local da instalação em graus Celsius.
-*   `pressao_rede_bar`: Pressão na rede de água em bares.
-*   `nome_cidade`: Nome da cidade onde o hidrômetro está localizado.
-*   `regiao_brasil`: Região geográfica do Brasil (Norte, Nordeste, Sudeste, Sul, Centro-Oeste).
-*   `bairro`: Nome do bairro real onde o hidrômetro está localizado, categorizado por perfil socioeconômico.
-*   `perfil_socioeconomico`: Classificação socioeconômica do bairro (Alta, Média, Baixa).
+- **Granularidade de 15 minutos** com 5 perfis de uso (normal, vazamento, fraude, ausência, comercial).
+- **Eventos culturais e sazonalidade climática** modulando o consumo.
+- **Métricas adicionais** (`pressure_psi`, `temperature_celsius`, `precipitacao_mm`, `anomaly_flag`, `evento_cultural_flag`).
+- **Particionamento mensal** pensado para pipelines ETL e cargas incrementais.
+- **Distribuição comprimida** para respeitar limites do GitHub sem alterar os dados originais (descompacte com `gzip -d arquivo.csv.gz` ou leitura direta pelo Pandas).
 
-### Cidades e Bairros Reais Incluídos:
+## 🧪 Validação dos Recortes
 
-Para cada cidade, foram selecionados bairros reais e categorizados por perfil socioeconômico (Alta, Média, Baixa) para tornar a simulação mais precisa:
+Após gerar/baixar os `.csv` originais:
 
-*   **Belém (Norte):**
-    *   **Alta:** Umarizal, Nazaré, Batista Campos, Reduto
-    *   **Média:** Marco, São Brás, Pedreira, Telégrafo
-    *   **Baixa:** Jurunas, Cremação, Guamá, Terra Firme, Cabanagem
-
-*   **Manaus (Norte):**
-    *   **Alta:** Adrianópolis, Ponta Negra, Nossa Senhora das Graças, Vieiralves, Parque Dez de Novembro
-    *   **Média:** Flores, Dom Pedro, Aleixo, São Geraldo
-    *   **Baixa:** Jorge Teixeira, Cidade Nova, Novo Aleixo, Japiim, Praça 14 de Janeiro, Alvorada, Coroado
-
-*   **Recife (Nordeste):**
-    *   **Alta:** Boa Viagem, Jaqueira, Casa Forte, Pina
-    *   **Média:** Madalena, Boa Vista, Torre, Casa Amarela
-    *   **Baixa:** Várzea, Ibura, Cohab, Arruda
-
-*   **Salvador (Nordeste):**
-    *   **Alta:** Vitória, Alphaville, Horto Florestal, Graça, Barra, Ondina
-    *   **Média:** Pituba, Caminho das Árvores, Rio Vermelho, Imbuí, Itaigara, Brotas
-    *   **Baixa:** São Caetano, Pirajá, Liberdade, Pernambués, Cabula, Valéria
-
-*   **São Paulo (Sudeste):**
-    *   **Alta:** Jardim Paulista, Moema, Itaim Bibi, Pinheiros, Vila Nova Conceição, Morumbi
-    *   **Média:** Vila Mariana, Perdizes, Tatuapé, Mooca, Santana, Ipiranga, Consolação, Bela Vista
-    *   **Baixa:** Grajaú, Jardim Ângela, Paraisópolis, Heliópolis, Cidade Tiradentes, Brasilândia
-
-*   **Rio de Janeiro (Sudeste):**
-    *   **Alta:** Leblon, Ipanema, Lagoa, Gávea, Jardim Botânico, Barra da Tijuca, São Conrado
-    *   **Média:** Copacabana, Botafogo, Flamengo, Laranjeiras, Tijuca, Vila Isabel, Méier
-    *   **Baixa:** Rocinha, Complexo do Alemão, Maré, Cidade de Deus, Campo Grande, Bangu, Santa Cruz
-
-*   **Porto Alegre (Sul):**
-    *   **Alta:** Moinhos de Vento, Bela Vista, Petrópolis, Três Figueiras
-    *   **Média:** Menino Deus, Cidade Baixa, Bom Fim, Rio Branco
-    *   **Baixa:** Restinga, Lomba do Pinheiro, Rubem Berta, Sarandi
-
-*   **Curitiba (Sul):**
-    *   **Alta:** Batel, Bigorrilho, Ecoville, Juvevê, Água Verde
-    *   **Média:** Portão, Santa Felicidade, Centro Cívico, Cristo Rei, Cabral
-    *   **Baixa:** Cidade Industrial de Curitiba (CIC), Sítio Cercado, Cajuru, Boqueirão, Tatuquara
-
-### Falhas e Anomalias Simuladas:
-
-O dataset inclui a simulação de diversas falhas e anomalias para tornar os dados mais realistas para análise de detecção de anomalias:
-
-*   **Falhas de Comunicação:** Períodos com dados nulos para consumo, vazão, temperatura e pressão.
-*   **Leituras Incorretas:** Valores absurdamente altos para consumo e vazão.
-*   **Bateria Fraca:** Períodos de consumo zero ou inconsistente, simulando falha do hidrômetro.
-*   **Vazamentos Lentos:** Pequeno consumo contínuo em horas de baixo uso (madrugada).
-*   **Fraudes:** Consumo zerado por longos períodos em hidrômetros que deveriam estar ativos.
-
-## Estrutura dos Arquivos
-
-Os arquivos são gerados na pasta `simulacao_hidrometros_por_mes_cidade/` e seguem o padrão de nomenclatura:
-
-`hidrometros_<nome_cidade_minusculo_sem_espacos>_<mes_minusculo>.csv`
-`hidrometros_<nome_cidade_minusculo_sem_espacos>_<mes_minusculo>.parquet`
-
-Exemplo:
-
-*   `simulacao_hidrometros_por_mes_cidade/hidrometros_belem_january.csv`
-*   `simulacao_hidrometros_por_mes_cidade/hidrometros_belem_january.parquet`
-
-## Como Utilizar os Dados
-
-Você pode carregar esses arquivos em ferramentas de análise de dados como Pandas (Python) ou PySpark para realizar suas análises, visualizações e desenvolver modelos de Machine Learning para detecção de padrões, falhas e anomalias.
-
-```python
-import pandas as pd
-
-# Exemplo de carregamento de um arquivo CSV
-df_exemplo_csv = pd.read_csv("simulacao_hidrometros_por_mes_cidade/hidrometros_belem_january.csv")
-print(df_exemplo_csv.head())
-
-# Exemplo de carregamento de um arquivo Parquet
-df_exemplo_parquet = pd.read_parquet("simulacao_hidrometros_por_mes_cidade/hidrometros_belem_january.parquet")
-print(df_exemplo_parquet.head())
+```bash
+python3 datasets_hidrometros_v2/separar_por_mes.py
+python3 datasets_hidrometros_v2/test_partitioning.py
+python3 datasets_hidrometros_v2/comprimir_mensais.py  # opcional para publicar no Git
 ```
 
-Esperamos que este dataset simulado seja uma ferramenta valiosa para seus estudos e projetos!
+O script `test_partitioning.py` garante que:
+- Cabeçalhos coincidam entre original e particionado.
+- Contagem de linhas por mês seja idêntica.
+- Hash SHA-256 por mês permaneça igual (integridade comprovada).
 
-## 🤝 Como Contribuir
+## 🔓 Como descompactar os `.csv.gz`
 
-Este é um projeto vivo e aberto a contribuições. Se você tem ideias para melhorias, novos pipelines, ou quer ajudar a expandir o ecossistema, sinta-se à vontade para abrir uma *Issue* ou um *Pull Request*.
+### Windows
 
-## 👨‍💻 Contato e Conexões
+1. Abra o PowerShell ou Windows Terminal na raiz do projeto.
+2. Execute:
 
-**Desenvolvido com paixão e a Força dos Dados por:**
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/descompactar_csv_windows.ps1
+```
 
-**Eric Pimentel**
+- Para uma pasta diferente, use `-Source "D:\meus_dados"`.
+- O script cria os `.csv` lado a lado e preserva os `.gz`.
+- Alternativa manual: instalar [7-Zip](https://www.7-zip.org/) e usar “Extract Here”.
 
-[![LinkedIn Badge](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/eric-np-santos/)
-[![GitHub Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/enps2015)
-[![Instagram Badge](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/eric.n.pimentel/)
-[![Gmail Badge](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:enps2006@gmail.com)
+### Linux / WSL / macOS
+
+```bash
+bash scripts/descompactar_csv_linux.sh
+```
+
+- Informe outro diretório com `--source /caminho/personalizado`.
+- É possível descompactar manualmente com `gunzip -c arquivo.csv.gz > arquivo.csv`.
+
+## 📚 Variáveis da Versão 2
+
+- `timestamp`: marca temporal (15 em 15 minutos).
+- `meter_id`: identificador do hidrômetro.
+- `city`, `region`: cidade e região do Brasil.
+- `neighborhood`, `socioeconomic_class`: bairro e classe socioeconômica.
+- `user_type`: perfil de consumo simulado.
+- `consumption_liters`: consumo instantâneo.
+- `pressure_psi`, `temperature_celsius`, `precipitacao_mm`: contexto operacional.
+- `anomaly_flag`: flag para vazamentos/fraudes simuladas.
+- `evento_cultural_flag`: indica impacto de evento cultural.
+
+## 🧭 Roadmap Sugerido
+
+1. Versão 1 para prototipagem rápida em notebooks.
+2. Versão 2 para análises avançadas, pipelines ETL e experimentos TinyML/IoT.
+3. Ajustes adicionais? Abra uma Issue ou envie um Pull Request!
+
+## 👨‍🏫 Contato
+
+Projeto guiado por **Eric Pimentel** e entusiastas da Força Analítica.
+
+- [LinkedIn](https://www.linkedin.com/in/eric-np-santos/)
+- [GitHub](https://github.com/enps2015)
+- [Instagram](https://www.instagram.com/eric.n.pimentel/)
+- [E-mail](mailto:enps2006@gmail.com)
 
 ---
 
-*✨ Última atualização: 18 de Julho de 2025 ✨*
-
+*“A Força está nos Dados, mas o Poder está na Interpretação.”*
