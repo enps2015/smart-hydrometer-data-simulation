@@ -83,6 +83,29 @@ bash scripts/descompactar_csv_linux.sh
 2. Versão 2 para análises avançadas, pipelines ETL e experimentos TinyML/IoT.
 3. Ajustes adicionais? Abra uma Issue ou envie um Pull Request!
 
+## 💡 Propostas de Projetos
+
+### Iniciante
+- Painel interativo no Power BI ou Data Studio mostrando consumo médio diário por bairro em uma única cidade.
+- Notebook exploratório em Python comparando padrões de vazamento entre classes socioeconômicas.
+- Relatório estatístico básico sobre sazonalidade mensal utilizando `seaborn` ou `ggplot`.
+- Mini-api Flask que retorna KPIs (consumo, alertas) filtrados por bairro.
+- Classificador simples (árvore de decisão) para detectar leituras suspeitas com base em poucos atributos.
+
+### Intermediário
+- Pipeline ETL em Airflow ou Prefect carregando os CSV mensais para um Data Warehouse em camadas bronze/prata/ouro.
+- Dashboard IoT em Grafana simulando telemetria em tempo real via MQTT com dados derivados do dataset.
+- Análise de correlação entre eventos culturais, temperatura e consumo utilizando causal impact ou ARIMAX.
+- Modelo de clustering para segmentar hidrômetros por perfil de uso e riscos operacionais.
+- Estudo de benchmarking entre 3 algoritmos de detecção de fraudes (Isolation Forest, LSTM Autoencoder, Prophet residual).
+
+### Avançado
+- Arquitetura completa de Data Lakehouse (Delta/Iceberg) em ambiente cloud com ingestion incremental e versionamento de dados.
+- TinyML no ESP32 treinando um detector de vazamentos com subset sintetizado e implantando quantização.
+- Geminação digital de rede hídrica simulando pressões e vazões com integração a modelos hidráulicos (ex.: EPANET).
+- Sistema de recomendação de manutenção preventiva usando grafos de vizinhança (Neo4j/NetworkX).
+- Pipeline MLOps ponta a ponta (CI/CD, monitoramento, retraining) focado na predição de consumo futuro e alertas em produção.
+
 ## 👨‍🏫 Contato
 
 Projeto guiado por **Eric Pimentel** e entusiastas da Força Analítica.
