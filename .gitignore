@@ -15,3 +15,8 @@ datasets_hidrometros_v2/*.ipynb
 # Arquivos temporários de SO/IDE
 .DS_Store
 Thumbs.db
+
+
+# Datasets completos são distribuídos pelo Kaggle, não pelo Git
+/datasets_versao_1/
+/datasets_hidrometros_v2/separados_mensais_csv_gz/
