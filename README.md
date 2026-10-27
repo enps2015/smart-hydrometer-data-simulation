@@ -26,9 +26,33 @@ Simulações sintéticas de telemetria hídrica para estudos de IoT, analytics e
 - **Particionamento mensal** pensado para pipelines ETL e cargas incrementais.
 - **Distribuição comprimida** para respeitar limites do GitHub sem alterar os dados originais (descompacte com `gzip -d arquivo.csv.gz` ou leitura direta pelo Pandas).
 
-## 🧪 Validação dos Recortes
+## 🧪 Validação dos Dados e dos Recortes
 
-Após gerar/baixar os `.csv` originais:
+### 1. Instalar dependências e validar uma amostra
+
+A validação inicial não exige gerar novamente as bases grandes. O script `validate_data.py` procura um CSV na estrutura real do repositório e, por padrão, lê até 10.000 linhas para verificar o esquema, timestamps, consumo, valores ausentes e possíveis valores inválidos.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+# Windows PowerShell: .venv\\Scripts\\Activate.ps1
+python -m pip install -r requirements.txt
+
+# Descobre automaticamente um dataset versionado e valida uma amostra
+python validate_data.py
+
+# Escolhe um arquivo e reduz a amostra
+python validate_data.py --file "datasets_versao_1/simulacao_hidrometros_por_mes_cidade/csv/belem/hidrometros_belém_january.csv" --sample-rows 5000
+
+# Lê um arquivo CSV/CSV.GZ inteiro (pode demorar e consumir mais memória)
+python validate_data.py --file "CAMINHO/arquivo.csv.gz" --full
+```
+
+A saída informa o caminho e esquema identificados, tamanho da amostra, campos ausentes e uma prévia opcional. Leituras de consumo ausentes são sinalizadas como possíveis falhas de comunicação; nunca são convertidas silenciosamente em zero. Quando o arquivo completo não é lido, as contagens referem-se apenas à amostra.
+
+### 2. Revalidar a integridade dos recortes mensais
+
+Após gerar/baixar os `.csv` originais da versão 2:
 
 ```bash
 python3 datasets_hidrometros_v2/separar_por_mes.py
@@ -40,6 +64,15 @@ O script `test_partitioning.py` garante que:
 - Cabeçalhos coincidam entre original e particionado.
 - Contagem de linhas por mês seja idêntica.
 - Hash SHA-256 por mês permaneça igual (integridade comprovada).
+
+### 3. Testes automatizados e integração contínua
+
+```bash
+python -m pytest -q
+```
+
+O GitHub Actions executa os testes de esquema v1/v2, leitura de CSV e CSV.GZ, descoberta de arquivos, validação de valores e execução da CLI. Também perfila uma amostra de um CSV versionado no repositório. As bases originais grandes permanecem fora dos testes automatizados; sua integridade é validada separadamente com os recortes e hashes.
+
 
 ## 🔓 Como descompactar os `.csv.gz`
 
