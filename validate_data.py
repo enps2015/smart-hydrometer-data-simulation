@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Valida e perfila uma amostra dos datasets de telemetria do Smart Hydrometer.
+"""Valida e perfila CSV/CSV.GZ dos datasets de telemetria do Smart Hydrometer.
 
-Por padrão, procura um CSV real na estrutura versionada da versão 1 e lê até
-10.000 linhas. Para CSV.gz, Pandas detecta a compressão pela extensão. Use
---full para percorrer o arquivo inteiro, ciente do custo de memória/tempo.
+Por padrão, procura dados completos nas pastas conhecidas e recorre à amostra
+sintética em samples/ quando eles não estão presentes. Para CSV.GZ, Pandas
+detecta a compressão pela extensão. Use --full para ler um arquivo inteiro.
 """
 from __future__ import annotations
 
