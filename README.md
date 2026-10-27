@@ -86,13 +86,17 @@ A saída informa o caminho e esquema identificados, tamanho da amostra, campos a
 
 ### 2. Revalidar a integridade dos recortes mensais
 
-Depois de baixar e descompactar localmente os arquivos de origem da versão 2 a partir do Kaggle:
+**Atenção:** estes scripts reconstroem e verificam o particionamento a partir dos CSVs brutos (`dataset_hidrometros_*.csv`) que precisam existir localmente em `datasets_hidrometros_v2/`. Esses CSVs agregados não fazem parte da coleção publicada no Kaggle descrita neste README; a distribuição contém os recortes mensais compactados (`.csv.gz`). Sem os CSVs brutos originais, não é possível repetir a comparação de integridade entre a fonte agregada e os recortes.
+
+Quando os CSVs brutos originais estiverem disponíveis nessa pasta, execute:
 
 ```bash
 python3 datasets_hidrometros_v2/separar_por_mes.py
 python3 datasets_hidrometros_v2/test_partitioning.py
-python3 datasets_hidrometros_v2/comprimir_mensais.py  # opcional para publicar no Git
+python3 datasets_hidrometros_v2/comprimir_mensais.py  # gera .csv.gz localmente
 ```
+
+O último comando apenas regenera cópias compactadas no computador; ele **não** publica dados no GitHub nem no Kaggle. Não versione os datasets completos no Git. Para distribuir uma nova versão, publique a coleção correspondente no Kaggle.
 
 O script `test_partitioning.py` garante que:
 - Cabeçalhos coincidam entre original e particionado.
@@ -179,7 +183,7 @@ Projeto guiado por **Eric Pimentel** e entusiastas da Força Analítica.
 
 **Eric Pimentel**
 
-[![LinkedIn Badge](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/eric-np-santos/)
+[![LinkedIn Badge](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ericpimentel-dados/)
 [![GitHub Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/enps2015)
 [![Instagram Badge](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/eric.n.pimentel/)
 [![Gmail Badge](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:enps2006@gmail.com)
