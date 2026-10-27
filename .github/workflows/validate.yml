@@ -33,8 +33,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout mínimo (evita baixar todos os datasets grandes)
         uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /validate_data.py
+            /requirements.txt
+            /tests/**
+            /datasets_versao_1/simulacao_hidrometros_por_mes_cidade/csv/curitiba/hidrometros_curitiba_january.csv
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -55,4 +62,4 @@ jobs:
         run: python -m pytest -q
 
       - name: Validar amostra real do dataset v1
-        run: python validate_data.py --sample-rows 100 --preview-rows 0
+        run: python validate_data.py --file "datasets_versao_1/simulacao_hidrometros_por_mes_cidade/csv/curitiba/hidrometros_curitiba_january.csv" --sample-rows 100 --preview-rows 0
