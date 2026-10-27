@@ -18,6 +18,7 @@ ROOT_DIR = Path(__file__).resolve().parent
 DEFAULT_SEARCH_DIRS = (
     ROOT_DIR / "datasets_versao_1" / "simulacao_hidrometros_por_mes_cidade" / "csv",
     ROOT_DIR / "datasets_hidrometros_v2" / "separados_mensais_csv_gz",
+    ROOT_DIR / "samples",
 )
 V1_REQUIRED_COLUMNS = {"timestamp", "id_hidrometro", "consumo_m3"}
 V2_REQUIRED_COLUMNS = {"timestamp", "meter_id", "consumption_liters"}
@@ -28,6 +29,7 @@ def discover_data_file(root: Path = ROOT_DIR) -> Path:
     search_dirs = (
         root / "datasets_versao_1" / "simulacao_hidrometros_por_mes_cidade" / "csv",
         root / "datasets_hidrometros_v2" / "separados_mensais_csv_gz",
+        root / "samples",
     )
     for directory in search_dirs:
         if not directory.is_dir():

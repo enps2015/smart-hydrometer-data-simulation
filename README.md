@@ -1,22 +1,53 @@
 # Smart Hydrometer Data Simulation
 
-Simulações sintéticas de telemetria hídrica para estudos de IoT, analytics e cidades inteligentes. O repositório agora mantém duas gerações de datasets – a versão original e uma nova coleção com granularidade ampliada e recortes mensais compactados – além dos scripts que geram, particionam e validam os dados.
+Simulações sintéticas de telemetria hídrica para estudos de IoT, analytics, engenharia de dados e cidades inteligentes. O código e as ferramentas de validação ficam no GitHub; as coleções completas de dados são distribuídas pelo Kaggle.
 
-## 📦 Estrutura de Dados
+## 📦 Onde estão os dados?
 
-- `datasets_versao_1/simulacao_hidrometros_por_mes_cidade/`
-  - Base histórica do repositório (2024, 500 hidrômetros, leituras horárias).
-  - Arquivos `.csv` e `.parquet` já particionados por cidade/mês.
-  - Indicada para estudos rápidos e notebooks de prototipagem.
-- `datasets_hidrometros_v2/`
-  - `dataset_hidrometros_*.csv` *(gigantes – mantidos fora do Git via `.gitignore`)*: geração contínua em intervalos de 15 minutos, com perfis de consumo realistas e eventos culturais.
-  - `separados_mensais/` *(uso local)*: recorte puro por cidade/mês, preservando o CSV integral.
-  - `separados_mensais_csv_gz/` *(versão distribuída)*: os mesmos recortes em `.csv.gz`, prontos para download no GitHub (todos os arquivos < 100 MB).
-  - Scripts utilitários:
-    - `gerador_de_dataset_de_hidrômetros_inteligentes_(final_otimizado).py`: geração em streaming.
-    - `separar_por_mes.py`: particionamento sem carregar os arquivos completos em memória.
-    - `comprimir_mensais.py`: criação das versões compactadas `.csv.gz`.
-    - `test_partitioning.py`: validação de integridade (contagem + hash SHA-256 por mês).
+**Fonte oficial dos datasets completos:** [Dados de Hidrômetros Inteligentes Simulados — Kaggle](https://www.kaggle.com/datasets/ericnarciso/dados-de-hidrmetros-inteligentes-simulados).
+
+O repositório GitHub mantém código, testes, documentação e uma pequena amostra sintética. Os arquivos completos ficam no Kaggle para evitar que clones do repositório precisem transferir gigabytes de dados e todo esse volume permaneça no histórico Git.
+
+### Versão 1 — dados mensais CSV e Parquet
+
+- **192 arquivos**: 96 CSV e 96 Parquet.
+- Oito cidades, com arquivos organizados por cidade e mês.
+- Tamanho de referência: 805.503.910 bytes (aproximadamente 806 MB).
+- Indicada para prototipagem, exploração e exemplos de análise.
+
+### Versão 2 — telemetria de maior granularidade
+
+- **60 arquivos `.csv.gz`**: cinco cidades × doze meses de 2024.
+- Leituras simuladas em intervalos de 15 minutos, com perfis de consumo, eventos culturais e variáveis ambientais/operacionais.
+- Tamanho compactado de referência: 1.572.595.424 bytes (aproximadamente 1,57 GB).
+- Indicada para pipelines ETL, séries temporais, detecção de anomalias e experimentos de IoT/TinyML.
+
+### Baixar os dados em Python
+
+Para usar a versão publicada no Kaggle, instale o KaggleHub e baixe o dataset no seu ambiente. O download acontece no ambiente em que o código é executado; não é necessário manter os dados no clone do GitHub.
+
+```bash
+python -m pip install kagglehub
+```
+
+```python
+import kagglehub
+
+dataset_path = kagglehub.dataset_download(
+    "ericnarciso/dados-de-hidrmetros-inteligentes-simulados"
+)
+print(dataset_path)
+```
+
+Se estiver usando um Notebook Kaggle com o dataset anexado como entrada, os arquivos já estarão montados em `/kaggle/input`; não é necessário baixar uma segunda cópia.
+
+### Conteúdo que permanece no GitHub
+
+- Scripts de simulação, particionamento e compressão.
+- Validador de dados, testes automatizados e integração contínua.
+- Uma amostra sintética pequena para executar os testes sem baixar o dataset completo.
+
+**Não adicione datasets completos ao Git.** Use o Kaggle como local de distribuição e versionamento dos arquivos.
 
 ## 🚀 Novidades da Versão 2
 
@@ -24,13 +55,13 @@ Simulações sintéticas de telemetria hídrica para estudos de IoT, analytics e
 - **Eventos culturais e sazonalidade climática** modulando o consumo.
 - **Métricas adicionais** (`pressure_psi`, `temperature_celsius`, `precipitacao_mm`, `anomaly_flag`, `evento_cultural_flag`).
 - **Particionamento mensal** pensado para pipelines ETL e cargas incrementais.
-- **Distribuição comprimida** para respeitar limites do GitHub sem alterar os dados originais (descompacte com `gzip -d arquivo.csv.gz` ou leitura direta pelo Pandas).
+- **Distribuição compactada no Kaggle**, mantendo os dados fora do histórico Git. Os arquivos `.csv.gz` podem ser lidos diretamente pelo Pandas ou descompactados com `gzip -d arquivo.csv.gz`.
 
 ## 🧪 Validação dos Dados e dos Recortes
 
 ### 1. Instalar dependências e validar uma amostra
 
-A validação inicial não exige gerar novamente as bases grandes. O script `validate_data.py` procura um CSV na estrutura real do repositório e, por padrão, lê até 10.000 linhas para verificar o esquema, timestamps, consumo, valores ausentes e possíveis valores inválidos.
+A validação de demonstração usa uma amostra sintética pequena incluída no repositório. Quando o dataset completo estiver baixado do Kaggle, você também pode apontar o validador para qualquer arquivo CSV ou CSV.GZ.
 
 ```bash
 python -m venv .venv
@@ -41,8 +72,11 @@ python -m pip install -r requirements.txt
 # Descobre automaticamente um dataset versionado e valida uma amostra
 python validate_data.py
 
-# Escolhe um arquivo e reduz a amostra
-python validate_data.py --file "datasets_versao_1/simulacao_hidrometros_por_mes_cidade/csv/belem/hidrometros_belém_january.csv" --sample-rows 5000
+# Valida a amostra sintética incluída no repositório
+python validate_data.py --file "samples/v1_sample.csv" --sample-rows 100
+
+# Valida um arquivo completo baixado do Kaggle
+python validate_data.py --file "/caminho/para/hidrometros_belém_january.csv" --sample-rows 5000
 
 # Lê um arquivo CSV/CSV.GZ inteiro (pode demorar e consumir mais memória)
 python validate_data.py --file "CAMINHO/arquivo.csv.gz" --full
@@ -52,7 +86,7 @@ A saída informa o caminho e esquema identificados, tamanho da amostra, campos a
 
 ### 2. Revalidar a integridade dos recortes mensais
 
-Após gerar/baixar os `.csv` originais da versão 2:
+Depois de baixar e descompactar localmente os arquivos de origem da versão 2 a partir do Kaggle:
 
 ```bash
 python3 datasets_hidrometros_v2/separar_por_mes.py
@@ -71,7 +105,7 @@ O script `test_partitioning.py` garante que:
 python -m pytest -q
 ```
 
-O GitHub Actions executa os testes de esquema v1/v2, leitura de CSV e CSV.GZ, descoberta de arquivos, validação de valores e execução da CLI. Também perfila uma amostra de um CSV versionado no repositório. As bases originais grandes permanecem fora dos testes automatizados; sua integridade é validada separadamente com os recortes e hashes.
+O GitHub Actions executa os testes de esquema v1/v2, leitura de CSV e CSV.GZ, descoberta de arquivos, validação de valores e execução da CLI. Também valida a amostra sintética pequena incluída no repositório. Os datasets completos são obtidos no Kaggle e não precisam ser baixados pelo CI.
 
 
 ## 🔓 Como descompactar os `.csv.gz`
@@ -152,7 +186,7 @@ Projeto guiado por **Eric Pimentel** e entusiastas da Força Analítica.
 
 ---
 
-*✨ Última atualização: 08 de outubro de 2025 ✨*
+*✨ Última atualização: 27 de outubro de 2026 ✨*
 ---
 
 *“A Força está nos Dados, mas o Poder está na Interpretação.”*

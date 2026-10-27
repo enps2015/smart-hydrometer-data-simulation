@@ -7,16 +7,16 @@ on:
       - "validate_data.py"
       - "tests/**"
       - "requirements.txt"
-      - "datasets_versao_1/**"
-      - "datasets_hidrometros_v2/separados_mensais_csv_gz/**"
+      - "samples/**"
+      - "README.md"
       - ".github/workflows/validate.yml"
   pull_request:
     paths:
       - "validate_data.py"
       - "tests/**"
       - "requirements.txt"
-      - "datasets_versao_1/**"
-      - "datasets_hidrometros_v2/separados_mensais_csv_gz/**"
+      - "samples/**"
+      - "README.md"
       - ".github/workflows/validate.yml"
   workflow_dispatch:
 
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout mínimo (evita baixar todos os datasets grandes)
+      - name: Checkout mínimo
         uses: actions/checkout@v4
         with:
           sparse-checkout-cone-mode: false
@@ -41,7 +41,7 @@ jobs:
             /validate_data.py
             /requirements.txt
             /tests/**
-            /datasets_versao_1/simulacao_hidrometros_por_mes_cidade/csv/curitiba/hidrometros_curitiba_january.csv
+            /samples/v1_sample.csv
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -61,5 +61,5 @@ jobs:
       - name: Executar testes automatizados
         run: python -m pytest -q
 
-      - name: Validar amostra real do dataset v1
-        run: python validate_data.py --file "datasets_versao_1/simulacao_hidrometros_por_mes_cidade/csv/curitiba/hidrometros_curitiba_january.csv" --sample-rows 100 --preview-rows 0
+      - name: Validar amostra sintética de demonstração
+        run: python validate_data.py --file "samples/v1_sample.csv" --sample-rows 100 --preview-rows 0
