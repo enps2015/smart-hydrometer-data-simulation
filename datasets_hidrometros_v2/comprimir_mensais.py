@@ -1,8 +1,8 @@
-"""Compacta os CSVs mensais em versões .csv.gz para distribuição no repositório.
+"""Compacta os CSVs mensais em versões .csv.gz para distribuição no Kaggle.
 
 Os arquivos originais em datasets_hidrometros_v2/separados_mensais permanecem intactos.
-As cópias comprimidas são salvas em datasets_hidrometros_v2/separados_mensais_csv_gz,
-mantendo a mesma hierarquia (cidade/ano/arquivo.csv.gz).
+As cópias comprimidas são salvas localmente em datasets_hidrometros_v2/separados_mensais_csv_gz,
+mantendo a mesma hierarquia (cidade/ano/arquivo.csv.gz). O script não faz upload nem publicação.
 """
 
 import gzip
